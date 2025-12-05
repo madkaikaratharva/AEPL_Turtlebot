@@ -79,7 +79,7 @@
         <xacro:if value="$(arg is_ignition)">
             <!-- Launch ROS2 Control plugin compatible with ROS2 Humble -->
             <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-                <parameters></parameters>
+                <parameters>$(find aepl_bot_controller)/config/aepl_bot_controllers.yaml</parameters>
             </plugin> 
         </xacro:if>
 

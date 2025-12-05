@@ -13,6 +13,10 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+    # Env variables
+    ros_distro = os.environ["ROS_DISTRO"]
+    is_ignition = "True" if ros_distro == "humble" else "False"
+
     # Argument for providing path to URDF file. Will contain /path/to/urdf
     model_arg = DeclareLaunchArgument(
         name="model",
@@ -24,7 +28,7 @@ def generate_launch_description():
 
     # Read the URDF provided by 'xacro' command line instruction. Robot state publisher node needs URDF 
     robot_description = ParameterValue(
-        Command(["xacro ", LaunchConfiguration("model")]),
+        Command(["xacro ", LaunchConfiguration("model"), " is_ignition:=", is_ignition]),
         value_type=str
     )
 
