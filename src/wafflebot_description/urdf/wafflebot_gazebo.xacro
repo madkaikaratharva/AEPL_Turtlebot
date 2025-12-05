@@ -72,4 +72,23 @@
         <!-- corrective contact velocity -->
         <maxVel>0.1</maxVel>
     </gazebo>
+
+    <!-- Load compatible version of ROS2 Control library based on ROS distros -->
+    <!-- Loads Gazebo interfaces for ROS2 --> 
+    <gazebo>
+        <xacro:if value="$(arg is_ignition)">
+            <!-- Launch ROS2 Control plugin compatible with ROS2 Humble -->
+            <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                <parameters></parameters>
+            </plugin> 
+        </xacro:if>
+
+        <xacro:unless value="$(arg is_ignition)">
+            <!-- Load different plugin for other ROS2 distros -->
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboROS2ControlPlugin">
+                <parameters></parameters>
+            </plugin> 
+        </xacro:unless>
+    </gazebo>
+
 </robot>

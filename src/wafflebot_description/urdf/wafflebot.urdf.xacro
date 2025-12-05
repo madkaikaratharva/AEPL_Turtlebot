@@ -3,8 +3,12 @@
 <!-- xmlns:xacro indicates the definition of the xacro format -->
 <robot xmlns:xacro="https://www.ros.org/wiki/xacro" name="wafflebot">
 
+    <!-- xacro arguments --> 
+    <xacro:arg name="is_ignition" default="true"/>
+
     <!-- import xacro files -->
     <xacro:include filename="$(find wafflebot_description)/urdf/wafflebot_gazebo.xacro" />
+    <xacro:include filename="$(find wafflebot_description)/urdf/wafflebot_ros2_control.xacro" />
 
     <!-- Links -->
     <!-- base footprint. non physical link -->
