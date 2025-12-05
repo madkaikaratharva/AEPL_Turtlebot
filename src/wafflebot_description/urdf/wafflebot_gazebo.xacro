@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro" name="wafflebot">
+
+    <!-- Set properties for -->
+    <gazebo reference="wheel_right_link">
+        <!-- friction coefficients-->
+        <mu1>100000000000000.0</mu1>
+        <mu2>100000000000000.0</mu2>
+
+        <!-- spring constants. define stiffness (kp) and damping (kd) -->
+        <kp>1000000000000.0</kp>
+        <kd>10.0</kd>
+
+        <!--solver accuracy for simulation-->
+        <minDepth>0.001</minDepth>
+
+        <!-- corrective contact velocity. set low for stability and less jitter -->
+        <maxVel>0.1</maxVel>
+
+        <!-- wheel friction direction -->
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+
+    <gazebo reference="wheel_left_link">
+        <!-- friction coefficients -->
+        <mu1>100000000000000.0</mu1>
+        <mu2>100000000000000.0</mu2>
+
+        <!-- spring constants -->
+        <kp>1000000000000.0</kp>
+        <kd>10.0</kd>
+
+        <!-- solver accuracy for simulation-->
+        <minDepth>0.001</minDepth>
+
+        <!-- max corrective contact velocity -->
+        <maxVel>0.1</maxVel>
+
+        <!-- wheel friction direction -->
+        <fdir1>1 0 0</fdir1>
+    </gazebo>
+
+    <gazebo reference="caster_front_link">
+        <!-- friction coefficients -->
+        <mu1>0.1</mu1>
+        <mu2>0.1</mu2>
+        
+        <!-- spring constants -->
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+
+        <!-- solver accuracy for simulation -->
+        <minDepth>0.001</minDepth>
+
+        <!-- corrective contact velocity -->
+        <maxVel>0.1</maxVel>
+    </gazebo>
+
+    <gazebo reference="caster_rear_link">
+        <!-- friction coefficients -->
+        <mu1>0.1</mu1>
+        <mu2>0.1</mu2>
+        
+        <!-- spring constants -->
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+
+        <!-- solver accuracy for simulation -->
+        <minDepth>0.001</minDepth>
+
+        <!-- corrective contact velocity -->
+        <maxVel>0.1</maxVel>
+    </gazebo>
+</robot>

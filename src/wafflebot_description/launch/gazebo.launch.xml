@@ -1,0 +1,22 @@
+<launch>
+    <!-- Path to URDF model-->
+    <arg name="model" 
+         default="$(find-pkg-share wafflebot_description)/urdf/wafflebot.urdf.xacro"
+         description="Path to your robot's main URDF file" />
+
+    <!-- State publisher node with robot_description param -->
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher">
+        <param name="robot_description" type="str" value="$(command 'xacro $(var model)')" />
+    </node>
+
+    <!-- Set environment variables for Gazebo -->
+    <set_env name="GZ_SIM_RESOURCE_PATH" value="$(find-pkg-share wafflebot_description)/.." />
+    
+    <!-- Include launch file from ros_gz_sim pkg to launch gazebo -->
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="-v 4 -r empty.sdf"/>
+    </include>
+    
+    <!-- Spawn robot in the environment using ros_gz_sim's create node -->
+    <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name wafflebot" /> 
+</launch>
