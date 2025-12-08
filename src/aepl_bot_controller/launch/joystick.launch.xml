@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="joy" exec="joy_node" name="joystick">
+        <param from="$(find-pkg-share aepl_bot_controller)/config/joy_config.yaml" />
+    </node>
+
+    <node pkg="joy_teleop" exec="joy_teleop" name="joy_teleop">
+        <param from="$(find-pkg-share aepl_bot_controller)/config/joy_teleop_config.yaml"/>
+    </node>
+</launch>

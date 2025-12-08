@@ -7,11 +7,32 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+# include directories
+include_directories(include)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+add_executable(velocity_controller src/velocity_controller.cpp)
+ament_target_dependencies(velocity_controller rclcpp std_msgs geometry_msgs ${Eigen_LIBRARIES})
+
+install(
+  DIRECTORY include
+  DESTINATION include
+)
 
 install(DIRECTORY
   config
   launch
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(TARGETS
+  velocity_controller
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
