@@ -21,4 +21,9 @@
     
     <!-- Spawn robot in the environment using ros_gz_sim's create node -->
     <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name wafflebot" /> 
+
+    <!-- Launch ROS2 Gazebo bridge node-->
+    <node pkg="ros_gz_bridge" exec="parameter_bridge" output="screen" args="/imu@sensor_msgs/msg/Imu[gz.msgs.IMU">
+        <remap from="/imu" to="/imu/out"/>
+    </node> 
 </launch>
