@@ -1,0 +1,15 @@
+<launch>
+    <!-- Publish Transforms between the new ekf frames -->
+    <node pkg="tf2_ros" 
+          exec="static_transform_publisher"
+          args="--x 0 --y 0 --z 0.103 --qx 0 --qy 0 --qz 0 --qw 1 --frame-id base_footprint_ekf --child-frame-id imu_link_ekf"/>
+
+    <!-- Extended Kalman Filter Node -->      
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen">
+        <param from="$(find-pkg-share aeplbot_localization)/config/ekf.yaml"/>
+    </node>
+
+    <!-- IMU Republisher Node -->
+    <node pkg="aeplbot_localization" exec="imu_republisher" name="imu_republisher_node" output="screen" /> 
+
+</launch>
