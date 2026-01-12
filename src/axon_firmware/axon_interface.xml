@@ -1,0 +1,9 @@
+<library path="axon_firmware">
+    <class name="axon_firmware/AxonInterface"
+           type="axon_firmware::AxonInterface"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>
+            Axon Hardware
+        </description>
+    </class>
+</library>

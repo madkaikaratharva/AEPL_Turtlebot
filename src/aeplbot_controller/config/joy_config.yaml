@@ -1,8 +1,0 @@
-joystic:
-  ros__parameters:
-    device_id: 0
-    device_name: "ds4"
-    deadzone: 0.5
-    autorepeat_rate: 20
-    sticky_button: false
-    coalesce_interval_ms: 1
