@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<robot name="axon" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Load Simulated or Real Hardware Interfaces -->
+    <xacro:arg name="is_sim" default="false"/>
+
+    <!-- Start GZ or Ignition depending on ROS 2 Version -->
+    <xacro:arg name="is_ignition" default="true"/>
+
+    <!-- Include ROS2 Control Parameters -->
+    <xacro:include filename="$(find axon_description)/urdf/axon_ros2_control.xacro" />
+    
+    <!-- Links -->
+    <link name="base_footprint"></link>
+
+    <link name="base_link"></link>
+    
+    <link name="wheel_right_link"></link>
+
+    <link name="wheel_left_link"></link>
+
+    <link name="caster_front_link"></link>
+
+    <link name="imu_link"></link>
+
+    <link name="laser_link"></link>
+
+    <!-- Joints -->
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0.062" rpy="0 0 0"/>
+    </joint>
+    
+    <joint name="wheel_right_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_right_link"/>
+        <origin xyz="0 -0.092 -0.0285" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <joint name="wheel_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_left_link"/>
+        <origin xyz="0 0.092 -0.0285" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <joint name="caster_front_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="caster_front_link"/>
+        <origin xyz="0.04755 0 -0.0295" rpy="0 0 0"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="0 0 0.115" rpy="0 0 0"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+    <joint name="laser_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser_link"/>
+        <origin xyz="0 0 0.16" rpy="0 0 0"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+</robot>

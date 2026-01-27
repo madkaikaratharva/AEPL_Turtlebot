@@ -1,84 +1,124 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "rclcpp/qos.hpp"
 
 using std::placeholders::_1;
-using namespace std::chrono_literals;
+
+static const unsigned int SAMPLES = 200;
+constexpr double ACCL_VAR = 0.02 * 0.02;
+constexpr double GYRO_VAR = 0.01 * 0.01;
+
 
 class ImuRepublisher : public rclcpp::Node
 {
 private:
-    // Imu Subscriber and Publisher
-    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
-    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
-
     // Support Variables
-    unsigned int counter_;
+    unsigned int sample_count_;
 
-    double bias_x_;
-    double bias_y_;
-    double bias_z_;
+    double accel_x_bias_;
+    double accel_y_bias_;
+    double accel_z_bias_;
 
-    double bias_theta_;
+    double gyro_x_bias_;
+    double gyro_y_bias_;
+    double gyro_z_bias_;
+
+    bool is_calibrated_;
+
+    // Publishers and Subscribers
+    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;    
 
 public:
-    ImuRepublisher(const char* name)
-        : Node(name)
-        , counter_(0)
-        , bias_x_(0.0)
-        , bias_y_(0.0)
-        , bias_z_(0.0)
-        , bias_theta_(0.0)
+
+    ImuRepublisher()
+        : Node("imu_republisher_node")
+        , sample_count_(0)
+        , accel_x_bias_(0.0)
+        , accel_y_bias_(0.0)
+        , accel_z_bias_(0.0)
+        , gyro_x_bias_(0.0)
+        , gyro_y_bias_(0.0)
+        , gyro_z_bias_(0.0)
+        , is_calibrated_(false)
     {
-
-        // Initialize Publisher
-        imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("/imu/corrected", 10);
-
-        // Initialize Subscriber
-        imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("/imu/out", 10, 
-                                                                std::bind(&ImuRepublisher::imuCallback, this, _1));
-
-        //RCLCPP_INFO_ONCE(get_logger(), "Replublishing Imu data");
+        // Initialize Publisher and Subscribers
+        imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("/imu/ekf", rclcpp::SensorDataQoS());
+        imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("/imu/out", rclcpp::SensorDataQoS(),
+                                            std::bind(&ImuRepublisher::imuCallback, this, _1));
     }
 
 private:
     void imuCallback(const sensor_msgs::msg::Imu::SharedPtr msg)
     {   
-       sensor_msgs::msg::Imu imu_message;       
-       if(counter_ < 100)
-       {
-            // Log
-            RCLCPP_INFO_ONCE(get_logger(), "Calibrating IMU Data. Keep Robot Stationary.");
+        if(!is_calibrated_)
+        {
+            RCLCPP_INFO_ONCE(get_logger(), "Calibrating IMU. Do not move ...");
 
-            counter_++;
+            accel_x_bias_ += msg->linear_acceleration.x;
+            accel_y_bias_ += msg->linear_acceleration.y;
+            accel_z_bias_ += msg->linear_acceleration.z;
 
-            // Accumulate the biases
-            bias_x_ += (msg->linear_acceleration.x - bias_x_) / counter_;
-            bias_y_ += (msg->linear_acceleration.y - bias_y_) / counter_;
-            bias_z_ += (msg->linear_acceleration.z - bias_z_) / counter_;
 
-            bias_theta_ += (msg->angular_velocity.z - bias_theta_) / counter_;
-            return;
-       }
-       RCLCPP_INFO_ONCE(get_logger(), "Calibration Complete. Publishing Corrected Data!");
-       RCLCPP_INFO_STREAM_ONCE(get_logger(), "bias_x: " << bias_x_ << " bias_z: " << bias_z_);
+            gyro_x_bias_ += msg->angular_velocity.x;
+            gyro_y_bias_ += msg->angular_velocity.y;
+            gyro_z_bias_ += msg->angular_velocity.z;
 
-       imu_message = *msg;
+            sample_count_++;
 
-       // Publish Corrected Readings
-       imu_message.linear_acceleration.x -= bias_x_;
-       imu_message.linear_acceleration.y -= bias_y_;
-       imu_message.linear_acceleration.z -= (bias_z_ - 9.81);
-       
-       // Publish the corrected message
-       imu_pub_->publish(imu_message); 
+            if(sample_count_ == SAMPLES)
+            {
+                accel_x_bias_ = accel_x_bias_ / sample_count_;
+                accel_y_bias_ = accel_y_bias_ / sample_count_;
+                accel_z_bias_ = (accel_z_bias_ / sample_count_) - 9.80665;
+
+                gyro_x_bias_ = gyro_x_bias_ / sample_count_;
+                gyro_y_bias_ = gyro_y_bias_ / sample_count_;
+                gyro_z_bias_ = gyro_z_bias_ / sample_count_;
+
+                is_calibrated_ = true;
+
+                RCLCPP_INFO(get_logger(), "IMU Calibration complete!");
+            }
+        }
+
+        if(is_calibrated_)
+        {
+            sensor_msgs::msg::Imu imu_msg = *msg;
+
+            imu_msg.linear_acceleration.x -= accel_x_bias_;
+            imu_msg.linear_acceleration.y -= accel_y_bias_;
+            imu_msg.linear_acceleration.z -= accel_z_bias_;
+
+            imu_msg.angular_velocity.x -= gyro_x_bias_;
+            imu_msg.angular_velocity.y -= gyro_y_bias_;
+            imu_msg.angular_velocity.z -= gyro_z_bias_;
+
+            imu_msg.linear_acceleration_covariance = {
+                ACCL_VAR, 0.0, 0.0,
+                0.0, ACCL_VAR, 0.0,
+                0.0, 0.0, ACCL_VAR
+            };
+
+            imu_msg.angular_velocity_covariance = {
+                GYRO_VAR, 0.0, 0.0,
+                0.0, GYRO_VAR, 0.0,
+                0.0, 0.0, GYRO_VAR
+            };
+
+            imu_msg.header.frame_id = "imu_link_ekf";
+
+            imu_pub_->publish(imu_msg);
+            
+        }
+
     }
 };
 
 int main(int argc, char* argv[])
 {
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<ImuRepublisher>("imu_republisher_node");
-    rclcpp::spin(node);
-    rclcpp::shutdown();
-    return 0;
+  rclcpp::init(argc, argv);
+  std::shared_ptr<ImuRepublisher> node = std::make_shared<ImuRepublisher>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
 }

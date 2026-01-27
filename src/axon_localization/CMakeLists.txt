@@ -7,30 +7,9 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-
-include_directories(include)
-
-add_executable(imu_republisher src/imu_republisher.cpp)
-ament_target_dependencies(imu_republisher rclcpp sensor_msgs)
-
-install(
-  DIRECTORY include
-  DESTINATION include
-)
-
-install(TARGETS
-  imu_republisher
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(DIRECTORY 
-  launch 
-  config 
-  rviz
-  DESTINATION share/${PROJECT_NAME}
-)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
