@@ -17,14 +17,31 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration("use_sim_time")
 
+    use_ekf_arg = DeclareLaunchArgument(
+        name="use_ekf",
+        default_value="False"
+    )
+    use_ekf = LaunchConfiguration("use_ekf")
+
     # launch hardware interface
     hardware_interface_launch = IncludeLaunchDescription(
         os.path.join(
             get_package_share_directory("axon_firmware"),
             "launch",
             "hardware_interface.launch.py"
-        )
+        ),
+        condition=UnlessCondition(use_ekf)
     )
+
+    # launch hardware interface
+    hardware_interface_ekf_launch = IncludeLaunchDescription(
+        os.path.join(
+            get_package_share_directory("axon_firmware"),
+            "launch",
+            "hardware_interface_ekf.launch.py"
+        ),
+        condition=IfCondition(use_ekf)
+    )       
 
     # axon controller
     axon_controller_launch = IncludeLaunchDescription(
@@ -71,10 +88,27 @@ def generate_launch_description():
         ]
     )
 
+    # EKF launch
+    ekf_node_launch = IncludeLaunchDescription(
+        os.path.join(
+            get_package_share_directory("axon_localization"),
+            "launch",
+            "local_localization.launch.py"
+        ),
+        launch_arguments={
+            "use_sim_time": "False"
+        }.items(),
+        condition=IfCondition(use_ekf)       
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
+        use_ekf_arg,
         hardware_interface_launch,
+        hardware_interface_ekf_launch,
         axon_controller_launch,
         joystick_teleop_launch,
-        rplidar_node
+        rplidar_node,
+        imu_driver_node,
+        ekf_node_launch
     ])

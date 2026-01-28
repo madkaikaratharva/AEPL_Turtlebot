@@ -16,16 +16,6 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration("use_sim_time")
 
-    # Static transform publisher
-    static_transform_publisher = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments=["--x", "0", "--y", "0","--z", "0.177",
-                   "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",
-                   "--frame-id", "base_footprint_ekf",
-                   "--child-frame-id", "imu_link_ekf"]
-    )
-
     # EKF filter node
     ekf_filter_node = Node(
         package="robot_localization",
@@ -50,7 +40,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
-        static_transform_publisher,
         ekf_filter_node,
         imu_republisher_node
     ])

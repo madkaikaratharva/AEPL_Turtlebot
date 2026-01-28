@@ -44,6 +44,7 @@ public:
     {
         // Initialize Publisher and Subscribers
         imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("/imu/ekf", rclcpp::SensorDataQoS());
+
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("/imu/out", rclcpp::SensorDataQoS(),
                                             std::bind(&ImuRepublisher::imuCallback, this, _1));
     }
@@ -86,6 +87,8 @@ private:
         {
             sensor_msgs::msg::Imu imu_msg = *msg;
 
+            imu_msg.header.frame_id = "base_footprint";
+
             imu_msg.linear_acceleration.x -= accel_x_bias_;
             imu_msg.linear_acceleration.y -= accel_y_bias_;
             imu_msg.linear_acceleration.z -= accel_z_bias_;
@@ -105,8 +108,6 @@ private:
                 0.0, GYRO_VAR, 0.0,
                 0.0, 0.0, GYRO_VAR
             };
-
-            imu_msg.header.frame_id = "imu_link_ekf";
 
             imu_pub_->publish(imu_msg);
             
