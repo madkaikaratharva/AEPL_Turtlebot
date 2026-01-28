@@ -1,26 +1,26 @@
 import os
-
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription
+
 from launch_ros.actions import Node
 
-
 def generate_launch_description():
-    
-    # axon_controller package directory
-    axon_controller_pkg = get_package_share_directory('axon_controller')
 
-    # Declare Launch Arguments
-    use_sim_time_arg = DeclareLaunchArgument(name="use_sim_time", default_value="True",
-                                      description="Use simulated time"
+    # axon controller pkg directory
+    axon_controller_pkg = get_package_share_directory("axon_controller")
+
+    # launch arguments
+    use_sim_time_arg = DeclareLaunchArgument(
+        name="use_sim_time",
+        default_value="False"
     )
     use_sim_time = LaunchConfiguration("use_sim_time")
 
-    # ROS2 Driver Node for Joystick Teleop
+    # joystick driver node
     joy_node = Node(
         package="joy",
         executable="joy_node",
@@ -31,8 +31,8 @@ def generate_launch_description():
         ]
     )
 
-    # Joystick Teleop node
-    joy_teleop_node = Node(
+    # joy_teleop node
+    joy_teleop_node  = Node(
         package="joy_teleop",
         executable="joy_teleop",
         parameters=[
@@ -40,13 +40,10 @@ def generate_launch_description():
             {"use_sim_time": use_sim_time}
         ]
     )
-  
+
+    # twist mux
     twist_mux_launch = IncludeLaunchDescription(
-        os.path.join(
-            get_package_share_directory("twist_mux"),
-            "launch",
-            "twist_mux_launch.py"
-        ),
+        os.path.join(get_package_share_directory("twist_mux"), "launch", "twist_mux_launch.py"),
         launch_arguments={
             "cmd_vel_out": "axon_controller/cmd_vel_unstamped",
             "config_locks": os.path.join(axon_controller_pkg, "config", "twist_mux_locks.yaml"),
@@ -56,11 +53,14 @@ def generate_launch_description():
         }.items()
     )
 
+    # twist relay
     twist_relay_node = Node(
         package="axon_controller",
         executable="twist_relay",
         name="twist_relay",
-        parameters=[{"use_sim_time": use_sim_time}]
+        parameters=[
+            {"use_sim_time": use_sim_time}
+        ]
     )
 
     return LaunchDescription([

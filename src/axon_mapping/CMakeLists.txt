@@ -7,22 +7,15 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-
-include_directories(include)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 
 install(
-  DIRECTORY include
-  DESTINATION include
-)
-
-install(DIRECTORY 
-  config 
-  launch 
-  maps 
-  rviz
+  DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
 )
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

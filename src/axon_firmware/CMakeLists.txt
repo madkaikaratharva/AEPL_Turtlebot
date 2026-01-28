@@ -7,23 +7,27 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(SERIAL libserial)
 
+ament_python_install_package(${PROJECT_NAME})
+
 add_library(${PROJECT_NAME} SHARED 
   src/axon_interface.cpp
 )
-
 target_include_directories(${PROJECT_NAME} PRIVATE 
   include
   "${SERIAL_INCLUDE_DIRS}"
 )
-
-target_link_libraries(${PROJECT_NAME} "${SERIAL_LDFLAGS}")
+target_link_libraries(${PROJECT_NAME}
+ "${SERIAL_LDFLAGS}")
 ament_target_dependencies(${PROJECT_NAME}
   hardware_interface
   pluginlib
@@ -33,8 +37,8 @@ ament_target_dependencies(${PROJECT_NAME}
 
 pluginlib_export_plugin_description_file(hardware_interface axon_interface.xml)
 
-install(TARGETS 
-  ${PROJECT_NAME}
+install(
+  TARGETS ${PROJECT_NAME}
   DESTINATION lib
 )
 
@@ -43,22 +47,15 @@ install(
   DESTINATION include
 )
 
-install(DIRECTORY 
-  launch
+install(
+  DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+install(PROGRAMS
+  ${PROJECT_NAME}/mpu6050_driver.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_export_include_directories(
   include

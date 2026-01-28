@@ -2,8 +2,9 @@
     <class name="axon_firmware/AxonInterface"
            type="axon_firmware::AxonInterface"
            base_class_type="hardware_interface::SystemInterface">
-        <description>
-            Axon Hardware
-        </description>
+
+           <description>
+                Axon Hardware Interface
+           </description>
     </class>
 </library>

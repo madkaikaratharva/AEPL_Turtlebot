@@ -1,19 +1,20 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
-from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
+from launch_ros.actions import Node
+
 def generate_launch_description():
-    
-    # Declare Launch Arguments
+
+    # declare launch argument
     use_sim_time_arg = DeclareLaunchArgument(
-        "use_sim_time",
-        default_value="True",
+        name="use_sim_time",
+        default_value="False"
     )
     use_sim_time = LaunchConfiguration("use_sim_time")
 
-    # Controller manager nodes
-    # Joint State Broadcaster
+    # controller manager nodes
+    # joint_state_broadcaster
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -24,13 +25,13 @@ def generate_launch_description():
         ]
     )
 
-    # Differential Drive Controller
+    # axon_controller
     axon_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "axon_controller", 
-            "--controller-manager", 
+            "axon_controller",
+            "--controller-manager",
             "/controller_manager"
         ]
     )
