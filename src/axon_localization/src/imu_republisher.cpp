@@ -5,8 +5,8 @@
 using std::placeholders::_1;
 
 static const unsigned int SAMPLES = 200;
-constexpr double ACCL_VAR = 0.02 * 0.02;
-constexpr double GYRO_VAR = 0.01 * 0.01;
+constexpr double ACCL_VAR = 0.07 * 0.07;
+constexpr double GYRO_VAR = 0.05 * 0.05;
 
 
 class ImuRepublisher : public rclcpp::Node
@@ -44,7 +44,6 @@ public:
     {
         // Initialize Publisher and Subscribers
         imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("/imu/ekf", rclcpp::SensorDataQoS());
-
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("/imu/out", rclcpp::SensorDataQoS(),
                                             std::bind(&ImuRepublisher::imuCallback, this, _1));
     }
@@ -86,9 +85,9 @@ private:
         if(is_calibrated_)
         {
             sensor_msgs::msg::Imu imu_msg = *msg;
-
+            
             imu_msg.header.frame_id = "base_footprint";
-
+            
             imu_msg.linear_acceleration.x -= accel_x_bias_;
             imu_msg.linear_acceleration.y -= accel_y_bias_;
             imu_msg.linear_acceleration.z -= accel_z_bias_;

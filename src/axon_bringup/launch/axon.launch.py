@@ -33,15 +33,15 @@ def generate_launch_description():
         condition=UnlessCondition(use_ekf)
     )
 
-    # launch hardware interface
+    # launch hardware interface with ekf filter
     hardware_interface_ekf_launch = IncludeLaunchDescription(
         os.path.join(
             get_package_share_directory("axon_firmware"),
             "launch",
             "hardware_interface_ekf.launch.py"
         ),
-        condition=IfCondition(use_ekf)
-    )       
+        condition=IfCondition(use_ekf)   
+    )
 
     # axon controller
     axon_controller_launch = IncludeLaunchDescription(
@@ -88,8 +88,8 @@ def generate_launch_description():
         ]
     )
 
-    # EKF launch
-    ekf_node_launch = IncludeLaunchDescription(
+    # EKF Filter Node
+    ekf_filter_launch = IncludeLaunchDescription(
         os.path.join(
             get_package_share_directory("axon_localization"),
             "launch",
@@ -98,7 +98,7 @@ def generate_launch_description():
         launch_arguments={
             "use_sim_time": "False"
         }.items(),
-        condition=IfCondition(use_ekf)       
+        condition=IfCondition(use_ekf)
     )
 
     return LaunchDescription([
@@ -110,5 +110,5 @@ def generate_launch_description():
         joystick_teleop_launch,
         rplidar_node,
         imu_driver_node,
-        ekf_node_launch
+        ekf_filter_launch
     ])
